@@ -7,7 +7,7 @@ const { verify } = jwt;
 configDotenv();
 
 export const validarJWT = (req = request, res = response, next) => {
-  const token = req.cookies.access_token;
+  const token = req.headers.authorization.split(" ")[1];
 
   try {
     const { uid, name } = verify(token, process.env.SECRET_JWT_KEY);

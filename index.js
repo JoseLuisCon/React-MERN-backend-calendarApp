@@ -15,9 +15,12 @@ dbConnection();
 
 // Directorio público
 app.use(express.static("public"));
-
+const corsOptions = {
+  origin: true,
+  credentials: true,
+};
 // CORS
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Lectura y parseo del body
 app.use(express.json());

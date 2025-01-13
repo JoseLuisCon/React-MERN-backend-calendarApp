@@ -16,7 +16,4 @@ export const loginValidator = [
     min: 6,
   }),
 ];
-export const renovarTokenValidator = [
-  cookie("access_token", "No hay token en la petición").exists(),
-  validarJWT,
-];
+export const renovarTokenValidator = [validarJWT];

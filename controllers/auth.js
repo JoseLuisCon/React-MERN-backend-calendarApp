@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { Usuario } from "../models/Usuario.js";
 
 import { generarJWT } from "../helpers/cookie_access.js";
+import { sendResErrorsMiddlewares } from "../helpers/sendErrorsMiddlewares.js";
 
 configDotenv();
 
@@ -91,12 +92,7 @@ export const loginUsuario = async (req = request, res = response) => {
 
     res
       .status(200)
-      .cookie("access_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 1000 * 60 * 60,
-      })
+
       .json({
         ok: true,
         uid: usuario.id,
@@ -121,18 +117,10 @@ export const revalidarToken = async (req, res = response) => {
     //Generar JWT
     const token = await generarJWT(req.uid, req.name);
 
-    res
-      .status(200)
-      .cookie("access_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 1000 * 60 * 60,
-      })
-      .json({
-        ok: true,
-        token,
-      });
+    res.status(200).json({
+      ok: true,
+      token,
+    });
   } catch (error) {
     res.status(500).json({
       ok: false,
