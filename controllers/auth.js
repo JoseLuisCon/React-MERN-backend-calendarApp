@@ -5,8 +5,8 @@ import { configDotenv } from "dotenv";
 import bcrypt from "bcryptjs";
 import { Usuario } from "../models/Usuario.js";
 
-import { generarJWT } from "../helpers/cookie_access.js";
 import { sendResErrorsMiddlewares } from "../helpers/sendErrorsMiddlewares.js";
+import { generarJWT } from "../helpers/generarJWT.js";
 
 configDotenv();
 
@@ -38,20 +38,12 @@ export const crearUsuario = async (req, res = response) => {
 
     // Generar TOKEN
     const token = await generarJWT(usuario.id, usuario.name);
-    res
-      .status(200)
-      .cookie("access_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 1000 * 60 * 60,
-      })
-      .json({
-        ok: true,
-        uid: usuario.id,
-        name: usuario.name,
-        token,
-      });
+    res.status(200).json({
+      ok: true,
+      uid: usuario.id,
+      name: usuario.name,
+      token,
+    });
   } catch (error) {
     res.status(500).json({
       ok: false,
@@ -119,6 +111,8 @@ export const revalidarToken = async (req, res = response) => {
 
     res.status(200).json({
       ok: true,
+      uid: req.uid,
+      name: req.name,
       token,
     });
   } catch (error) {

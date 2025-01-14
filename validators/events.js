@@ -27,7 +27,7 @@ export const checkEvent = [
 
 export const checkEventUpdate = [
   ...checkEvent,
-  body("id", "El id del evento es obligatorio").exists(),
+  param("id", "El id del evento es obligatorio").exists(),
 ];
 
 export const checkEventDelete = [

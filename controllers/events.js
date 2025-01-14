@@ -16,11 +16,9 @@ export const getEventos = async (req, res = response) => {
     return sendResErrorsMiddlewares(res, errors);
   }
 
-  const cookie = req.cookies.access_token;
-  const { uid } = verify(cookie, process.env.SECRET_JWT_KEY);
   let eventos = [];
   try {
-    eventos = await Evento.find().populate("user", "name").all("user", uid);
+    eventos = await Evento.find().populate("user", "name");
 
     res.status(200).send({
       ok: true,
@@ -41,12 +39,10 @@ export const crearEvento = async (req, res = response) => {
     return sendResErrorsMiddlewares(res, errors);
   }
 
-  const cookie = req.cookies.access_token;
-  const { uid } = verify(cookie, process.env.SECRET_JWT_KEY);
   const { title, notes, start, end } = req.body;
 
   try {
-    const event = new Evento({ title, notes, start, end, user: uid });
+    const event = new Evento({ title, notes, start, end, user: req.uid });
     const newEvento = await event.save();
 
     res.status(201).send({
@@ -85,8 +81,8 @@ export const actualizarEvento = async (req, res = response) => {
       });
     }
     // Comprobamos que la persona que modifica el evento es la misma que la que quiere modificarlo
-    const cookie = req.cookies.access_token;
-    const { uid } = verify(cookie, process.env.SECRET_JWT_KEY);
+    const token = req.headers.authorization.split(" ")[1];
+    const { uid } = verify(token, process.env.SECRET_JWT_KEY);
     if (event.user.toString() !== uid) {
       return res.status(401).send({
         ok: false,
@@ -127,6 +123,7 @@ export const eliminarEvento = async (req, res = response) => {
   }
 
   const eventId = req.params.id;
+  console.log("🚀 ~ eliminarEvento ~ eventId:", eventId);
 
   if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
     return res.status(400).send({
@@ -134,7 +131,18 @@ export const eliminarEvento = async (req, res = response) => {
       msg: "El id del evento es obligatorio y debe ser un id válido",
     });
   }
+  // Comprobamos que la persona que modifica el evento es la misma que la que quiere modificarlo
+  const token = req.headers.authorization.split(" ")[1];
+  const { uid } = verify(token, process.env.SECRET_JWT_KEY);
+  console.log("🚀 ~ eliminarEvento ~ uid:", uid);
 
+  console.log("🚀 ~ eliminarEvento ~ req.uid:", req.uid);
+  if (req.uid !== uid) {
+    return res.status(401).send({
+      ok: false,
+      msg: "No tiene permisos para editar este evento",
+    });
+  }
   try {
     const event = await Evento.findById(eventId);
     if (!event) {
@@ -144,8 +152,8 @@ export const eliminarEvento = async (req, res = response) => {
       });
     }
     // Comprobamos que la persona que modifica el evento es la misma que la que quiere modificarlo
-    const cookie = req.cookies.access_token;
-    const { uid } = verify(cookie, process.env.SECRET_JWT_KEY);
+    const token = req.headers.authorization.split(" ")[1];
+    const { uid } = verify(token, process.env.SECRET_JWT_KEY);
     if (event.user.toString() !== uid) {
       return res.status(401).send({
         ok: false,
