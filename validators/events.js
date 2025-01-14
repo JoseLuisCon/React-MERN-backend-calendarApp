@@ -2,7 +2,6 @@ import { body, cookie, param } from "express-validator";
 import { isDate } from "../helpers/isDate.js";
 
 export const checkEvent = [
-  cookie("access_token").exists().withMessage("No hay token en la petición"),
   body("title", "El título es obligatorio y no puede estar vacío")
     .exists()
     .notEmpty(),
@@ -32,6 +31,5 @@ export const checkEventUpdate = [
 ];
 
 export const checkEventDelete = [
-  cookie("access_token").exists().withMessage("No hay token en la petición"),
   param("id", "El id del evento es obligatorio").exists(),
 ];
