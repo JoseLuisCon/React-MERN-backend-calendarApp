@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import cors from "cors";
 import { configDotenv } from "dotenv";
@@ -33,6 +34,12 @@ app.use(cookieParser());
 app.use("/api/auth", router);
 // TODO: CRUD: Eventos
 app.use("/api/events", routerEvents);
+
+// Redireccionar cualquier petición a la página principal
+app.use("*", (req, res) => {
+  res.sendFile(path.join(import.meta.dirname, "public/index.html"));
+});
+
 //Escuchar peticiones
 app.listen(process.env.PORT, () => {
   console.log(`Servidor corriendo por el puerto: ${process.env.PORT}`);
